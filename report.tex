@@ -32,10 +32,10 @@
     linkcolor=blue,
     filecolor=magenta,      
     urlcolor=cyan,
-    pdftitle={Election Data Analysis Report},
-    pdfauthor={Data Analyst},
-    pdfsubject={Election Data Analysis},
-    pdfkeywords={Machine Learning, Election Data, Classification, Predictive Modeling}
+    pdftitle={Bank Customer Segmentation},
+    pdfauthor={Data Scientist},
+    pdfsubject={Bank Customer Segmentation},
+    pdfkeywords={Machine Learning, Bank Data, Clustering, Unsupervised Learning}
 }
 
 \titlelabel{\thetitle.\quad}
@@ -48,15 +48,15 @@
 \begin{titlepage}
     \centering
     \vspace*{2cm}
-    {\LARGE\bfseries Election Data Analysis and Voter Prediction Models\par}
+    {\LARGE\bfseries Bank Data Clustering and Customer Segmentation\par}
     \vspace{2cm}
-    {\Large Predictive Analysis of Voter Behavior for Exit Poll Creation\par}
+    {\Large Predicting customer category according to their info.\par}
     \vspace{3cm}
     {\Large Shoyeb Ansari\par}
     \vspace{1cm}
     {\large\today\par}
     \vfill
-    {\large\textbf{GitHub Repository:} \url{https://github.com/Shoyeb45/ElectionVotingPrediction}\par}
+    {\large\textbf{GitHub Repository:} \url{https://github.com/Shoyeb45/CustomerSegmentation}\par}
 \end{titlepage}
 
 \thispagestyle{empty}
@@ -69,651 +69,189 @@
 \listoftables
 \pagebreak
 
+
 \section{Introduction}
-This report presents a comprehensive analysis of election data comprising 1525 voters with 9 variables. The main objective was to build machine learning models to predict which party a voter will vote for based on the given information. This predictive analysis will be used to create an exit poll that will help in forecasting the overall win in seats covered by a particular political party.
+This report presents a comprehensive analysis of customer Segmentation of bank data. The main objective was to build machine learning models to categorise the customer in different clusters. 
 
 \subsection{Project Scope and Objectives}
 The primary goals of this project were:
 \begin{itemize}
-    \item To perform thorough exploratory data analysis on the voter dataset
-    \item To identify key factors that influence voting patterns
-    \item To build and compare different classification models for predicting voter behavior
-    \item To select the optimal model for exit poll implementation
+    \item To perform thorough exploratory data analysis on the bank dataset
+    \item To build and compare different Clustering models for categorising user behavior
+    \item To select the optimal model for customer Segmentation
 \end{itemize}
 
-\section{Data Ingestion and Preprocessing}
 
-The data is imported using pandas. Using $\text{read\_excel()}$ function and extracting particular sheet by providing that sheet name.
+\section{Data Ingestion}
+
+The data is imported using pandas. Using $\text{read\_csv()}$ function.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\textwidth]{cs1.png}
+    \includegraphics[width=0.7\textwidth]{reading_data.png}
     \caption{Reading data}
     \label{fig:example}
 \end{figure}
 
-
 \subsection{Dataset Overview}
 The dataset consists of 1525 voter records with 9 variables. These variables include various demographic and behavioral attributes that could potentially influence voting decisions.
-
-\begin{table}[H]
-\centering
-\caption{Description of Variables}
-\label{tab:variable_description}
-\begin{tabular}{l p{8cm} l}
-\toprule
-\textbf{Variable} & \textbf{Description} & \textbf{DataType}\\
-\midrule
-vote & Party choice: Conservative or Labour & object\\
-age & Age in years & int64\\
-economic.cond.national & Assessment of current national economic conditions, 1 to 5  & int64\\
-economic.cond.household & Assessment of current household economic conditions, 1 to 5 & int64 \\
-Blair & Assessment of the Labour leader, 1 to 5 & int64\\
-Hague & Assessment of the Conservative leader, 1 to 5  & int64\\
-Europe & An 11-point scale that measures respondents' attitudes toward European integration. High scores represent ‘Eurosceptic’ sentiment & int64\\
-political.knowledge & Knowledge of parties' positions on European integration, 0 to 3  & int64\\
-gender & Female or male  & object\\
-\bottomrule
-\end{tabular}
-\end{table}
 
 \subsection{Null Value Analysis and Unnecessary Columns}
 A thorough check for missing values was conducted to ensure data quality and completeness before proceeding with the analysis.
 
-\begin{table}[H]
-\centering
-\caption{Null Value Analysis}
-\label{fig:null_analysis}
-\begin{tabular}{lr}
-\toprule
-\textbf{Variable} & \textbf{Missing Values} \\
-\midrule
-vote                      & 0\\
-age                       & 0\\
-economic.cond.national    & 0\\
-economic.cond.household   & 0\\
-Blair                     & 0\\
-Hague                     & 0\\
-Europe                    & 0\\
-political.knowledge       & 0\\
-gender                    & 0\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Missing values in the Income and Media Exposure variables were addressed through imputation using the median value for numerical variables and mode for categorical variables.
-
-There is one index column which is name 'Unnamed: 0', so we'll drop them.
-
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\textwidth]{cs2.png}
-    \caption{Dropping column}
+    \includegraphics[width=0.7\textwidth]{data_info.png}
+    \caption{Data information}
     \label{fig:example}
 \end{figure}
-
-
 
 \section{Exploratory Data Analysis}
 
 \subsection{Descriptive Statistics}
 The initial inspection of the dataset revealed the following characteristics:
 
-\begin{table}[H]
-\centering
-\caption{Descriptive Statistics of Numerical Variables}
-\label{tab:desc_stats}
-\begin{tabular}{lrrrrr}
-\toprule
-\textbf{Variable} & \textbf{Count} & \textbf{Mean} & \textbf{Std. Dev.} & \textbf{Min} & \textbf{Max} \\
-\midrule
-Age & 1525 & 54.18 & 15.71 & 24 & 93 \\
-Economic Condition (National) & 1525 & 3.25 & 0.88 & 1 & 5 \\
-Economic Condition (Household) & 1525 & 3.14 & 0.93 & 1 & 5 \\
-Blair & 1525 & 3.33 & 1.17 & 1 & 5 \\
-Hague & 1525 & 2.75 & 1.23 & 1 & 5 \\
-Europe & 1525 & 6.73 & 3.30 & 1 & 11 \\
-Political Knowledge & 1525 & 1.54 & 1.08 & 0 & 3 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{data_stats.png}
+    \caption{Data Statistics}
+    \label{fig:example}
+\end{figure}
 
-\begin{table}[H]
-\centering
-\caption{Descriptive Statistics of Categorical Variables}
-\label{tab:desc_categorical}
-\begin{tabular}{lrrrr}
-\toprule
-\textbf{Variable} & \textbf{Count} & \textbf{Unique} & \textbf{Top} & \textbf{Frequency} \\
-\midrule
-Vote & 1525 & 2 & Labour & 1063 \\
-Gender & 1525 & 2 & Female & 812 \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 \subsection{Univariate Analysis}
 Univariate analysis was performed to understand the distribution of individual variables and identify potential anomalies.
 
-\subsubsection{Distribution of Categorical Variables}
 
-We need to visualize distribution of the categorical variables. We can see there is a slight imbalance in vote data which is our target variable 
-
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
-    \includegraphics[width=1\textwidth]{uni2.png}
-    \caption{Categorical univariate analysis}
+    \includegraphics[width=0.9\textwidth]{univariate_analysis.png}
+    \caption{Distribution of all features}
     \label{fig:example}
 \end{figure}
 
+As here we can see that there are different type of ranges of the values of different features. And each of the features have different scales. In order to do better clustering, we need to have a fair distance metric, so we need to normalise the features here. 
 
 
-\subsubsection{Distribution of Numerical Variables}
-
-We have 7 numerical variables, so it's important to see the distribution of each variable and draw some important insight.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{uni.png}
-    \caption{Histogram of all numerical variable}
-    \label{fig:example}
-\end{figure}
-
-We can see most variable don't follow any specific distribution, but 'age' variable is tending for Gaussian distribution.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{ageDistri.png}
-    \caption{Distribution of age}
-    \label{fig:age_dist}
-\end{figure}
-
-There's not that much deviation from the Gaussian distribution of age variable. So we can infer that under some condition age variable is following gaussian distribution.
-
-
-
+We can use either of these technique:
+\begin{itemize}
+    \item \textbf{Standardization (Z-score scaling)}: Centers the data around 0 with a standard deviation of 1.
+    \item \textbf{Normalization (Min-Max scaling)}: Scales values between 0 and 1.
+\end{itemize}
 
 
 \subsection{Bivariate Analysis}
 
 Bivariate analysis was conducted to examine relationships between variables and particularly to understand how different factors correlate with the target variable .
 
-We can see that there is a correlation of $0.35$ between \texttt{economic.cond.household} and \texttt{economic.cond.national}. 
 
-\begin{enumerate}
-    \item \textbf{Is 0.35 Too High for Multicollinearity?}
-    \begin{itemize}
-        \item No, a correlation of $0.35$ is not high enough to indicate serious multicollinearity.
-        \item Typically, multicollinearity becomes a problem if $\lvert r \rvert > 0.7$ between independent variables.
-    \end{itemize}
-
-    \item \textbf{Does It Affect Model Performance?}
-    \begin{itemize}
-        \item If these correlated features provide unique information, they may still improve the model.
-        \item If they contain redundant information, one of them might be unnecessary.
-        \item \textbf{Action}: Run feature importance analysis (like SHAP or permutation importance) to check if both features contribute.
-    \end{itemize}
-    
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
-    \includegraphics[width=1\textwidth]{corrHeat.png}
-    \caption{Correlation heatmap between variables}
+    \includegraphics[width=1\textwidth]{bivariate_analysis.png}
+    \caption{Correlation coefficient heat map}
     \label{fig:example}
 \end{figure}
 
-    \item \textbf{Shall we Drop One of the Features?}
+We can observe following observation :
+
+\begin{enumerate}
+    \item 1. Highly Correlated Features (Multicollinearity)
+
     \begin{itemize}
-        \item If we will use tree-based models (e.g., Decision Trees, Random Forest, XGBoost, etc.), they handle correlated features well, so we don’t need to drop anything.
-        \item If we will use linear models (e.g., Logistic Regression, SVM), mild correlation usually isn’t a big issue, but feature scaling \& regularization (L1/L2) can help.
-        \item \textbf{Action}: If using Logistic Regression, check Variance Inflation Factor (VIF) to detect multicollinearity.
-        \item VIF $>$ 5 or 10 $\rightarrow$ Feature is highly collinear and might need removal.
+        \item spending \& advance\_payments (0.99)
+        \item spending \& current\_balance (0.95)
+        \item spending \& credit\_limit (0.97)
+        \item advance\_payments \& current\_balance (0.97)
+        \item advance\_payments \& credit\_limit (0.94)
+        \item current\_balance \& credit\_limit (0.86)
+        \item current\_balance \& max\_spent\_in\_single\_shopping (0.93)
+    \end{itemize}
+    
+
+    \item Moderate Correlation: 
+    
+    \begin{itemize}
+        \item probability\_of\_full\_payment \& credit\_limit (0.76)
+        
+        \item probability\_of\_full\_payment \& spending (0.60)
+        
+    \end{itemize}
+
+    \item Weak or No Correlation:
+
+    \begin{itemize}
+        \item min\_payment\_amt has weak or negative correlations with other features.
     \end{itemize}
 \end{enumerate}
 
-
-
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
-    \includegraphics[width=1\textwidth]{scatterBi.png}
-    \caption{Scatter plot between all numerical values}
+    \includegraphics[width=0.8\textwidth]{bi_scatter.png}
+    \caption{Scatter plot between all features}
     \label{fig:example}
 \end{figure}
 
-We also need to visualize categorical variables. We only have 2 categorical variables. So let's see by gender.
+Impact on Clustering
 
-\begin{figure}[H]
+\begin{enumerate}
+    \item \textbf{Redundant Features}: Since spending, advance\_payments, current\_balance, and credit\_limit are highly correlated, they may introduce bias and cause clusters to be formed based on redundant information.
+    
+    \item \textbf{Over-Influence of Strongly Correlated Features}: K-Means and other distance-based clustering methods give more weight to features with larger variance. Highly correlated features can dominate the clustering process, leading to misleading groupings.
+
+
+    \item \textbf{Multicollinearity Issues}: Clustering algorithms assume independent features. Highly correlated features can create misleading distance calculations.
+\end{enumerate}
+
+
+How to solve?
+
+- We'll use Feature Selection to solve this problem of highly multicollinearity. We'll see that in PreProcessing step
+
+
+\subsection{Outlier Detection}
+
+The dataset was examined for potential outliers that could affect model performance by visualizing box-plot of features.
+
+\begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{catBiAna.png}
-    \caption{Categorical v/s Categorical Analysis}
+    \includegraphics[width=1\textwidth]{box_plot.png}
+    \caption{Box plot of all features.}
     \label{fig:example}
 \end{figure}
 
-\subsection{Outlier Analysis}
-The dataset was examined for potential outliers that could affect model performance by visualizing box-plot of variables.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{box_plot_before_treatmant.png}
-    \caption{Function for treating outlier}
-    \label{fig:example}
-\end{figure}
 
-Outliers were treated using the Winsorization method, where we defined the lower and upper bound and value less or greater than them will be replaced by lower and upper bound value respectively. 
+\section{Data Pre Processing}
 
-\begin{figure}[H]
+\subsection{Standardization}
+
+As we seen that the ranges and scales are not proper, so we have to scale the data to do justice to distance metrices.
+
+\begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\textwidth]{cs3.png}
-    \caption{Function for treating outlier}
+    \includegraphics[width=1\textwidth]{code_Scaling.png}
+    \caption{Code to perform the Standardization}
     \label{fig:example}
 \end{figure}
 
 
-\begin{figure}[H]
+\subsection{Outlier Treatmant}
+
+According to the boxplot, we had only two columns for outliers. So here's the function to treat the outliers:
+
+
+\begin{figure}[h]
     \centering
-    \includegraphics[width=1\textwidth]{boxplot_after_outlier_treatmant.png}
-    \caption{Box plots after outlier treatmant }
+    \includegraphics[width=1\textwidth]{outlier_treatmant.png}
+    \caption{Outlier treatmant code}
     \label{fig:example}
 \end{figure}
 
-\subsection{Summary of EDA Insights}
+Columns which conatins outliers :
 
-\subsubsection{Removed Unnecessary Columns}
-During the data preprocessing stage, certain features were identified as redundant or irrelevant based on domain knowledge and statistical analysis. These features were removed to improve model efficiency and reduce noise.
-
-\subsection{No Null Values, So No Null Value Treatment}
-A check for missing values using the \texttt{df.isnull().sum()} function revealed that no null values were present in the dataset. As a result, no imputation or missing value treatment was required, ensuring that all data remained intact for analysis.
-
-\subsubsection{No Multicollinearity}
-Multicollinearity was assessed using:
 \begin{itemize}
-    \item A correlation heatmap to visualize relationships between features.
+    \item probability\_of\_full\_payment
+    \item min\_payment\_amt
 \end{itemize}
-Since no strong correlations were found between independent variables, all retained features contributed uniquely to the model.
-
-\subsubsection{Gaussian Distribution of Age Variable}
-A histogram and Kernel Density Estimate (KDE) plot confirmed that the \texttt{age} variable followed a near-normal distribution, as shown in Figure~\ref{fig:age_dist}. This normality is beneficial for models like Logistic Regression that assume a Gaussian distribution of features.
-
-
-\subsubsection{Outlier Handling}
-Outliers were detected using boxplots and the Interquartile Range (IQR) method. Handling outliers was performed as follows:
-\begin{itemize}
-    \item Extreme values were either \textbf{capped} using Winsorization or \textbf{removed} if significantly skewed.
-
-\end{itemize}
-The final dataset was well-prepared for model training, ensuring robust and unbiased predictions.
-
-\section{Data Pre-Processing}
-
-\subsection{Data Encoding}
-Categorical variables were encoded using:
-\begin{itemize}
-    \item Label encoding for ordinal variables (Education Level, Media Exposure)
-\end{itemize}
-
-Used \texttt{LabelEncoder} class from \texttt{sklearn.preprocessing} to replace categorical values in vote and gender column.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{labelEncoder.png}
-    \caption{Box plots before outlier treatmant }
-    \label{fig:example}
-\end{figure}
-
-\subsection{Train-Test Split}
-The dataset was split into training and testing sets to evaluate model performance:
-
-\begin{table}[H]
-\centering
-\caption{Data Split Parameters}
-\label{tab:data_split}
-\begin{tabular}{lr}
-\toprule
-\textbf{Parameter} & \textbf{Value} \\
-\midrule
-Training set size & 80\% (1214 samples) \\
-Testing set size & 20\% (304 samples) \\
-Random state & 42 (for reproducibility) \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\section{Model Development and Evaluation}
-
-As there are two classes to predict i.e., \texttt{Labour} and \texttt{Conservative}, so this model does not predict negative or positive classes. We will focus on improving the accuracy of the model.
-
-\subsection{Logistic Regression Model}
-A logistic regression model was implemented as a baseline classifier.
-
-\begin{table}[H]
-\centering
-\caption{Logistic Regression Performance}
-\label{tab:logistic_perf}
-\begin{tabular}{lr}
-\toprule
-\textbf{Metric} & \textbf{Value} \\
-\midrule
-Accuracy & 0.8066 \\
-Precision & 0.8369 \\
-Recall & 0.9028 \\
-F1-Score & 0.8686 \\
-AUC-ROC & 0.8642 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{lr_confusion.png}
-    \caption{Confusion Matrix of Logistic Regression}
-    \label{fig:example}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{roc_lr.png}
-    \caption{ROC curve of Logistic Regression}
-    \label{fig:example}
-\end{figure}
-
-\subsection{Decision Tree Model}
-A decision tree classifier was implemented and optimized using grid search.
-
-\begin{table}[H]
-\centering
-\caption{Decision Tree Parameters}
-\label{tab:dt_params}
-\begin{tabular}{lr}
-\toprule
-\textbf{Parameter} & \textbf{Value} \\
-\midrule
-max\_depth & 5 \\
-min\_samples\_split & 10 \\
-min\_samples\_leaf & 2 \\
-criterion & gini \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{cm_dt.png}
-    \caption{Confusion Matrix of Decision Tree}
-    \label{fig:example}
-\end{figure}
-
-
-\begin{table}[H]
-\centering
-\caption{Decision Tree Performance}
-\label{tab:dt_perf}
-\begin{tabular}{lr}
-\toprule
-\textbf{Metric} & \textbf{Value} \\
-\midrule
-Accuracy & 0.7967 \\
-Precision & 0.8438 \\
-Recall & 0.8750 \\
-F1-Score & 0.8591 \\
-AUC-ROC & 0.8405 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{roc_dt.png}
-    \caption{ROC Curve of Decision Tree}
-    \label{fig:example}
-\end{figure}
-
-
-
-\subsection{Random Forest Model}
-A random forest classifier was implemented to improve upon the decision tree model.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{cm_rfc.png}
-    \caption{Confusion Matrix of Random Forest Classifier}
-    \label{fig:example}
-\end{figure}
-
-
-\begin{table}[H]
-\centering
-\caption{Random Forest Performance}
-\label{tab:rf_perf}
-\begin{tabular}{lr}
-\toprule
-\textbf{Metric} & \textbf{Value} \\
-\midrule
-Accuracy & 0.8066 \\
-Precision & 0.8458 \\
-Recall & 0.8889 \\
-F1-Score & 0.8668 \\
-AUC-ROC & 0.8585 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{roc_rfc.png}
-    \caption{ROC Curve of Random Forest Classifier}
-    \label{fig:example}
-\end{figure}
-
-
-\subsection{XGBoost Model}
-An XGBoost classifier was implemented for its strong performance in various classification tasks.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{cm_xgb.png}
-    \caption{Confusion Matrix of XGBoost Classifier}
-    \label{fig:example}
-\end{figure}
-
-
-\begin{table}[H]
-\centering
-\caption{XGBoost Performance}
-\label{tab:xgb_perf}
-\begin{tabular}{lr}
-\toprule
-\textbf{Metric} & \textbf{Value} \\
-\midrule
-Accuracy & 0.7902 \\
-Precision & 0.8486 \\
-Recall & 0.8565 \\
-F1-Score & 0.8525 \\
-AUC-ROC & 0.8368 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{roc_xgb.png}
-    \caption{ROC Curve of XGBoost Classifier}
-    \label{fig:example}
-\end{figure}
-
-
-\subsection{AdaBoost Model}
-An AdaBoost classifier was implemented to evaluate its performance on the election dataset.
-
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{cm_ab.png}
-    \caption{Confusion Matrix of AdaBoost Classifier}
-    \label{fig:example}
-\end{figure}
-
-\begin{table}[H]
-\centering
-\caption{AdaBoost Performance}
-\label{tab:ada_perf}
-\begin{tabular}{lr}
-\toprule
-\textbf{Metric} & \textbf{Value} \\
-\midrule
-Accuracy & 0.8098 \\
-Precision & 0.8527 \\
-Recall & 0.8843 \\
-F1-Score & 0.8682 \\
-AUC-ROC & 0.8611 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{roc_ab.png}
-    \caption{ROC Curve of AdaBoost Classifier}
-    \label{fig:example}
-\end{figure}
-
-\subsection{Gradient Boosting Model}
-A Gradient Boosting classifier was implemented to further evaluate boosting algorithms.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{cm_gb.png}
-    \caption{Confusion Matrix of GradientBoost Classifier}
-    \label{fig:example}
-\end{figure}
-
-\begin{table}[H]
-\centering
-\caption{Gradient Boosting Performance}
-\label{tab:gb_perf}
-\begin{tabular}{lr}
-\toprule
-\textbf{Metric} & \textbf{Value} \\
-\midrule
-Accuracy & 0.8098 \\
-Precision & 0.8527 \\
-Recall & 0.8843 \\
-F1-Score & 0.8682 \\
-AUC-ROC & 0.8611 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{roc_gb.png}
-    \caption{ROC Curve of GradientBoost Classifier}
-    \label{fig:example}
-\end{figure}
-
-
-
-\subsection{K-Nearest Neighbors Model}
-A K-Nearest Neighbors classifier was implemented to evaluate its performance on the election dataset.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{cm_knn.png}
-    \caption{Confusion Matrix of kNN Classifier}
-    \label{fig:example}
-\end{figure}
-
-\begin{table}[H]
-\centering
-\caption{KNN Performance}
-\label{tab:knn_perf}
-\begin{tabular}{lr}
-\toprule
-\textbf{Metric} & \textbf{Value} \\
-\midrule
-Accuracy & 0.7967 \\
-Precision & 0.8438 \\
-Recall & 0.8750 \\
-F1-Score & 0.8591 \\
-AUC-ROC & 0.8405 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{roc_knn.png}
-    \caption{ROC Curve of kNN Classifier}
-    \label{fig:example}
-\end{figure}
-
-
-\section{Model Comparison and Selection}
-
-\subsection{Performance Comparison of All Models}
-The performance of all implemented models was compared to determine the most suitable model for voter prediction.
-
-\begin{table}[h]
-\centering
-\caption{Model Performance Comparison}
-\label{tab:model_comp}
-\begin{tabular}{lrrrr}
-\toprule
-\textbf{Model} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
-\midrule
-Logistic Regression & 0.8066 & 0.8369 & 0.9028 & 0.8686 \\
-Decision Tree  & 0.7967 & 0.8438 & 0.8750 & 0.8591 \\
-Random Forest & 0.8066 & 0.8458 & 0.8889 & 0.8668 \\
-XGBoost & 0.7902 & 0.8486 & 0.8565 & 0.8525 \\
-AdaBoost & 0.8098 & 0.8527 & 0.8843 & 0.8682 \\
-Gradient Boosting & 0.8098 & 0.8527 & 0.8843 & 0.8682 \\
-KNN & 0.7967 & 0.8438 & 0.8750 & 0.8591 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Based on the model performance, we can derieve following conclusion for model selection:
-\begin{itemize}
-    \item Selected \textbf{AdaBoost} or \textbf{Gradient Boosting} for best overall results.
-    \item Chose \textbf{Logistic Regression} for focusing on recall (capturing all Labour voters) is most important.
-\end{itemize}
-\section{Insights}
-
-\subsection{Vote Distribution}
-\begin{itemize}
-    \item \textbf{Labour}: 69.7\%
-    \item \textbf{Conservative}: 30.3\%
-    \item Labour has significantly more supporters in this dataset.
-\end{itemize}
-
-\subsection{Demographics}
-\begin{itemize}
-    \item \textbf{Age}: Ranges from 24 to 93, with a mean of 54 years.
-    \item \textbf{Gender}: Almost equal distribution (46.8\% Female, 53.2\% Male).
-\end{itemize}
-
-\subsection{Economic Conditions}
-\begin{itemize}
-    \item \textbf{National Economic Condition Average}: 3.26 (on a scale of 1-5).
-    \item \textbf{Household Economic Condition Average}: 3.16 (similar scale).
-    \item Most people rate economic conditions as neutral/slightly positive.
-\end{itemize}
-
-\subsection{Leadership Ratings}
-\begin{itemize}
-    \item \textbf{Blair (Labour Leader)}: Average rating of 3.33 (higher).
-    \item \textbf{Hague (Conservative Leader)}: Average rating of 2.75.
-\end{itemize}
-
-\subsection{Europe Sentiment}
-\begin{itemize}
-    \item \textbf{Mean Score}: 6.73 (scale 1-11).
-    \item Higher scores indicate Eurosceptic views.
-\end{itemize}
-
-\subsection{Political Knowledge}
-\begin{itemize}
-    \item \textbf{Mean Score}: 1.54 (scale 0-3).
-    \item Many respondents have moderate political knowledge.
-\end{itemize}
-
 
 \end{document}
 </antArtifact
